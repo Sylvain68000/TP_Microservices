@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tp.microservice.client.infrastructure.ClientRepository;
-import com.tp.microservice.client.presentation.CommandeDAO;
-
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
@@ -38,7 +36,7 @@ public class ClientService {
     {
         clientRepository.save(client);
     }
-    	
+    
     public List<CommandeDAO> getCommandes(List<Integer> idCommandes) {
 	//déclaration de l'objet permettant de déclencher un appel REST
 	jakarta.ws.rs.client.Client client = ClientBuilder.newClient();

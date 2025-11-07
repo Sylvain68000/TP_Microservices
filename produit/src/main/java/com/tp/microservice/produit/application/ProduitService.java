@@ -1,4 +1,4 @@
-package com.imt.framework.web.tuto.application;
+package com.tp.microservice.produit.application;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.imt.framework.web.tuto.infrastructure.ProduitRepository;
+import com.tp.microservice.produit.infrastructure.ProduitRepository;
+
+
 
 
 @Service

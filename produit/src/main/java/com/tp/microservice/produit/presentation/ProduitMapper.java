@@ -1,6 +1,6 @@
-package com.imt.framework.web.tuto.presentation;
+package com.tp.microservice.produit.presentation;
 
-import com.imt.framework.web.tuto.application.Produit;
+import com.tp.microservice.produit.application.Produit;
 
 public class ProduitMapper {
 

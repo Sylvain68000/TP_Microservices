@@ -1,4 +1,4 @@
-package com.imt.framework.web.tuto.application;
+package com.tp.microservice.produit.application;
 
 import jakarta.persistence.*;
 
@@ -6,16 +6,16 @@ import jakarta.persistence.*;
 public class Produit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private int id;
     private String nom;
     private String description;
     private Double prix;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
