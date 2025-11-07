@@ -1,11 +1,10 @@
-package com.imt.framework.web.tuto.infrastructure;
+package com.tp.microservice.commande.infrastructure;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Component;
 
-import com.imt.framework.web.tuto.application.Commande;
+import com.tp.microservice.commande.application.Commande;
 
-@Component
+
 public interface  CommandeRepository extends JpaRepository<Commande, Integer> {
 
 }
