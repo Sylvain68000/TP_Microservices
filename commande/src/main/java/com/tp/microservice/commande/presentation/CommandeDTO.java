@@ -9,16 +9,23 @@ public class CommandeDTO {
     private Integer id;
     private String nom;
     private StatusCommande statut;
-    private List<ProduitDAO> produits;
+    private List<ProduitDTO> produits;
 
     public CommandeDTO() {
     }
 
-    public CommandeDTO(Integer id, String nom, StatusCommande statut, List<ProduitDAO> produits) {
+    public CommandeDTO(Integer id, String nom, StatusCommande statut, List<ProduitDTO> produits) {
         this.id = id;
         this.nom = nom;
         this.statut = statut;
         this.produits = produits;
+    }
+
+    public CommandeDTO(Integer id, String nom, StatusCommande statut) {
+        this.id = id;
+        this.nom = nom;
+        this.statut = statut;
+
     }
     public Integer getId() {
         return id;
@@ -32,7 +39,7 @@ public class CommandeDTO {
         return statut;
     }
 
-    public List<ProduitDAO> getProduits() {
+    public List<ProduitDTO> getProduits() {
         return produits;
     }  
 
@@ -48,7 +55,7 @@ public class CommandeDTO {
         this.statut = statut;
     }
 
-    public void setProduits(List<ProduitDAO> produits) {
+    public void setProduits(List<ProduitDTO> produits) {
         this.produits = produits;
     }
 

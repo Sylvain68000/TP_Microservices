@@ -1,14 +1,12 @@
 package com.tp.microservice.produit.application;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tp.microservice.produit.infrastructure.ProduitRepository;
-
-
 
 
 @Service
@@ -17,38 +15,28 @@ public class ProduitService {
     private ProduitRepository produitRepository;
 
     public List<Produit> listingProduits(){
-        return produitRepository.findAll();
+     return produitRepository.findAll();
     }
-
     public Produit getProduit(int id){
-        Optional<Produit> produit = produitRepository.findById(id);
-        if (!produit.isPresent()) {
-            throw new jakarta.persistence.EntityNotFoundException("Produit non trouvé avec l'ID : " + id);
-        }
-        return produit.get();
+     return produitRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Produit non trouvé avec l'ID: " + id));
     }
 
-    public void deleteProduit(int id){
-        produitRepository.deleteById(id);
-    }
-
-    public Produit createProduit(Produit produit) {
-        if (produit == null) {
-            throw new IllegalArgumentException("Le produit ne peut pas être null");
-        }
-        return produitRepository.save(produit);
+    public List<Produit> getProduitsByIds(List<Integer> ids) {
+        return produitRepository.findByIdIn(ids);
     }
 
     public Produit updateProduit(Produit produit) {
-        if (produit == null) {
-            throw new IllegalArgumentException("Le produit ne peut pas être null");
-        }
-        if (produit.getId() == null) {
-            throw new IllegalArgumentException("L'ID du produit ne peut pas être null pour une mise à jour");
-        }
-        if (!produitRepository.existsById(produit.getId())) {
-            throw new jakarta.persistence.EntityNotFoundException("Produit non trouvé avec l'ID : " + produit.getId());
-        }
         return produitRepository.save(produit);
     }
+    public void deleteProduit(int id){
+       Produit p = this.getProduit(id); // (Lèvera une erreur 404 si non trouvé)
+        produitRepository.delete(p);
+    }
+    public Produit creationProduit(Produit produit)
+    {
+        return produitRepository.save(produit);
+        
+    }
+  
 }

@@ -3,27 +3,32 @@ package com.tp.microservice.commande.presentation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import org.springframework.stereotype.Component;
 import com.tp.microservice.commande.application.Commande;
 import com.tp.microservice.commande.application.ProduitDAO;
-import com.tp.microservice.commande.presentation.ProduitDTO;
+import com.tp.microservice.commande.application.StatusCommande;
 
+@Component
 public class CommandeMapper {
 
-    public CommandeDTO mapCommandetoCommandeDTO(Commande commande) {
+    public CommandeDTO mapCommandetoCommandeDTO(Commande commande, List<ProduitDAO> produitsBruts) {
         CommandeDTO CommandeDTO = new CommandeDTO();
         CommandeDTO.setId(commande.getId());
         CommandeDTO.setNom(commande.getNom());
         CommandeDTO.setStatut(commande.getStatut());
-        
+        CommandeDTO.setProduits( mapProduitDAOToProduitDTO(produitsBruts) );
+
         return CommandeDTO;
     }
 
-    public Commande mapCommandeDTOtoCommande(CommandeDTO commandeDTO) {
+
+public Commande mapCreationDTOToCommande(CreationCommandeDTO commandeDTO) {
         Commande commande = new Commande();
-        commande.setId(commandeDTO.getId());
         commande.setNom(commandeDTO.getNom());
-        commande.setStatut(commandeDTO.getStatut());
+        
+        commande.setIdProduits( commandeDTO.getProduits() ); 
+        
+        commande.setStatut(StatusCommande.EN_ATTENTE); 
         
         return commande;
     }
@@ -33,7 +38,7 @@ public class CommandeMapper {
             return new ArrayList<>();
         }
         return produits.stream()
-                .map(p -> new ProduitDTO(p.getId(), p.getNom(), p.getPrix()))
+                .map(p -> new ProduitDTO(p.getId(), p.getNom(), p.getDescription(), p.getPrix()))
                 .collect(Collectors.toList());
     }
 

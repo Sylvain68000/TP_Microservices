@@ -4,10 +4,8 @@ import com.tp.microservice.produit.application.Produit;
 
 public class ProduitMapper {
 
-    public Produit mapProduit(ProduitDTO produitDTO) {
-        if (produitDTO == null) {
-            return null;
-        }
+    public Produit mapProduitDTOtoProduit(ProduitDTO produitDTO) {
+
         Produit produit = new Produit();
         produit.setNom(produitDTO.getNom());
         produit.setPrix(produitDTO.getPrix());
@@ -15,15 +13,12 @@ public class ProduitMapper {
         return produit;
     }
 
-    public ProduitDTO mapToDTO(Produit produit) {
-        if (produit == null) {
-            return null;
-        }
-        ProduitDTO dto = new ProduitDTO();
-        dto.setId(produit.getId());
-        dto.setNom(produit.getNom());
-        dto.setPrix(produit.getPrix());
-        dto.setDescription(produit.getDescription());
-        return dto;
+    public ProduitDTO mapProduitToProduitDTO(Produit produit) {
+        ProduitDTO Produitdto = new ProduitDTO();
+        Produitdto.setId(produit.getId());
+        Produitdto.setNom(produit.getNom());
+        Produitdto.setPrix(produit.getPrix());
+        Produitdto.setDescription(produit.getDescription());
+        return Produitdto;
     }
 }
