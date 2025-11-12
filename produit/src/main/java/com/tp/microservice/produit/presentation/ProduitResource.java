@@ -1,103 +1,95 @@
 package com.tp.microservice.produit.presentation;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import com.tp.microservice.produit.application.Produit;
 import com.tp.microservice.produit.application.ProduitService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.PATCH;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
+import java.util.NoSuchElementException;
 
-@Path("/produits")
+@Path("produits")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ProduitResource {
 
     @Autowired
-    private ProduitService produitService;
+    private ProduitService service; // Le service (qui renvoie des Entités)
+
+    @Autowired
+    private ProduitMapper mapper; 
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getProduit(){
-        try {
-            //appel à la logique métier
-            List<Produit> produits = produitService.listingProduits();
-            ProduitMapper mapper = new ProduitMapper();
-            List<ProduitDTO> produitsDTO = produits.stream()
-                .map(mapper::mapToDTO)
-                .collect(Collectors.toList());
-            return Response.ok()
-                   .entity(produitsDTO)
-                   .header("Access-Control-Allow-Origin", "*")
-                   .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                         .entity("Erreur lors de la récupération des produits: " + e.getMessage())
-                         .build();
+    public Response getProduits(@QueryParam("idProduits") List<Integer> idProduits) {
+        
+        List<Produit> produitsEntites; // On récupère les Entités
+
+        if (idProduits == null || idProduits.isEmpty()) {
+            // Cas 1 : GET /api/produits (Tout lister)
+            produitsEntites = service.listingProduits();
+        } else {
+            // Cas 2 : GET /api/produits?idProduits=... (Spécifique)
+            produitsEntites = service.getProduitsByIds(idProduits);
         }
+
+        // Le Resource fait le mapping
+        List<ProduitDTO> produitsDTO = mapper.mapProduitToProduitDTO(produitsEntites);
+        
+        return Response.ok(produitsDTO)
+                       .header("Access-Control-Allow-Origin", "*")
+                       .build();
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createProduit(@NotNull @RequestBody ProduitDTO produitDTO){
+    public Response createProduit(CreationProduitDTO produitDTO) {
         try {
-            //appel à la logique métier
-            ProduitMapper mapper = new ProduitMapper();
-            Produit produit = mapper.mapProduit(produitDTO);
-            Produit created = produitService.createProduit(produit);
+            // 1. Le Resource mappe : DTO -> Entité
+            Produit produit = mapper.mapCreationDTOToProduit(produitDTO);
+            
+            // 2. Le Resource appelle le service (avec l'Entité)
+            Produit created = service.creationProduit(produit);
+            
+            // 3. Le Resource re-mappe : Entité -> DTO pour la réponse
             return Response.status(Response.Status.CREATED)
-                         .entity(mapper.mapToDTO(created))
-                         .build();
+                           .entity(mapper.mapProduitToProduitDTO(created))
+                           .build();
         } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                         .entity("Erreur lors de la création du produit: " + e.getMessage())
-                         .build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PATCH
-    @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{id}")
-    public Response updateProduit(@NotNull @PathParam("id") Integer id, @NotNull @RequestBody ProduitDTO produitDTO) {
+    public Response updateProduit(@PathParam("id") Integer id, UpdateProduitDTO produitDTO) {
         try {
-            // getProduit va lancer EntityNotFoundException si le produit n'existe pas
-            produitService.getProduit(id);
+            // 1. Le Resource appelle le service pour l'Entité
+            Produit produitExistant = service.getProduit(id);
             
-            ProduitMapper mapper = new ProduitMapper();
-            Produit updated = mapper.mapProduit(produitDTO);
-            updated.setId(id);
-            Produit savedProduit = produitService.updateProduit(updated);
-            return Response.ok()
-                         .entity(mapper.mapToDTO(savedProduit))
-                         .build();
-        } catch (EntityNotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND)
-                         .entity("Produit inconnu: " + e.getMessage())
-                         .build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                         .entity("Erreur lors de la mise à jour: " + e.getMessage())
-                         .build();
+            // 2. Le Resource appelle le mapper pour appliquer le patch
+            // (Nous devons créer cette méthode dans le mapper)
+            mapper.applyPatchToProduit(produitExistant, produitDTO);
+            
+            // 3. Le Resource sauvegarde l'Entité modifiée
+            Produit savedProduit = service.updateProduit(produitExistant);
+            
+            return Response.ok(mapper.mapToDTO(savedProduit)).build();
+            
+        } catch (NoSuchElementException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteProduit(@NotNull @PathParam("id") final Integer id){
-        produitService.deleteProduit(id);
-        return Response.noContent().build();
+    public Response deleteProduit(@PathParam("id") final Integer id){
+        try {
+            service.deleteProduit(id);
+            return Response.noContent().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 }

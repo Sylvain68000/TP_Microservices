@@ -21,4 +21,24 @@ public class ProduitMapper {
         Produitdto.setDescription(produit.getDescription());
         return Produitdto;
     }
+
+    public Produit mapCreationDTOToProduit(CreationProduitDTO produitdto) {
+        Produit produit = new Produit();
+        produit.setNom(produitdto.getNom());
+        produit.setDescription(produitdto.getDescription());
+        produit.setPrix(produitdto.getPrix());
+        return produit;
+    }
+
+    public void appliquerPatchProduit (Produit produit, UpdateProduitDTO Produitdto) {
+        if (Produitdto.getNom() != null) {
+            produit.setNom(Produitdto.getNom());
+        }
+        if (Produitdto.getDescription() != null) {
+            produit.setDescription(Produitdto.getDescription());
+        }
+        if (Produitdto.getPrix() != null) {
+            produit.setPrix(Produitdto.getPrix());
+        }
+    }
 }
