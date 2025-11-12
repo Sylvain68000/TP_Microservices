@@ -44,5 +44,22 @@ public Commande mapCreationDTOToCommande(CreationCommandeDTO commandeDTO) {
                 .collect(Collectors.toList());
     }
 
+        public void appliquerPatchCommande(Commande commandeExistante, UpdateCommandeDTO CommandeDTO) {
+        
+        if (CommandeDTO.getNom() != null) {
+            commandeExistante.setNom(CommandeDTO.getNom());
+        }
+        if (CommandeDTO.getStatut() != null) {
+     
+            commandeExistante.setStatut(CommandeDTO.getStatut());
+        }
+        if (CommandeDTO.getProduits() != null) {
+            commandeExistante.setIdProduits(CommandeDTO.getProduits());
+        }
+        if (CommandeDTO.getClientId() != null) {
+            commandeExistante.setClientId(CommandeDTO.getClientId());
+        }
+    }
+
 }
 

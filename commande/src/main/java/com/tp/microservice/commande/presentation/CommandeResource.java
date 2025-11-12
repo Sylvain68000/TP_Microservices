@@ -12,6 +12,7 @@ import com.tp.microservice.commande.application.ProduitDAO;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -140,6 +141,28 @@ public class CommandeResource {
 			commandeRetournees.add(commandeAAjouter);
 		}		
 		return Response.ok(commandeRetournees).build();
+    }
+
+	@PATCH
+    @Path("/{id}")
+    public Response updateCommande(@PathParam("id") int id, UpdateCommandeDTO dto) {
+        try {
+            // 1. Récupérer le "formulaire" (l'Entité)
+            Commande commandeExistante = service.getCommande(id);
+            
+            // 2. Appliquer le "Post-it" (le DTO)
+            mapper.appliquerPatchCommande(commandeExistante, dto);
+            
+            // 3. Sauvegarder le formulaire mis à jour
+            Commande commandeMiseAJour = service.updateCommande(commandeExistante);
+            
+            return Response.ok(commandeMiseAJour).build();
+            
+        } catch (NoSuchElementException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity(e.getMessage())
+                           .build();
+        }
     }
 
 }

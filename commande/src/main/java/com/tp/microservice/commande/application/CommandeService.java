@@ -29,8 +29,8 @@ public class  CommandeService {
         Optional<Commande> commande = commandeRepository.findById(id);
         return commande.get();
     }
-    public void updateCommande(Commande commande) {
-        commandeRepository.save(commande);
+    public Commande updateCommande(Commande commande) {
+        return commandeRepository.save(commande);
     }
     public void deleteCommande(int id){
         commandeRepository.deleteById(id);
