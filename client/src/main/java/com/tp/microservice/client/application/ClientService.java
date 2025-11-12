@@ -26,31 +26,37 @@ public class ClientService {
         Optional<Client> client = clientRepository.findById(id);
         return client.get();
     }
-    public void updateClient(Client client) {
-        clientRepository.save(client);
+    public Client updateClient(Client client) {
+         return clientRepository.save(client);
     }
     public void deleteClient(int id){
-        clientRepository.deleteById(id);
+        Client c = this.getClient(id);
+        clientRepository.delete(c);
     }
-    public void creationClient(Client client)
+    public Client creationClient(Client client)
     {
-        clientRepository.save(client);
+         return clientRepository.save(client);
     }
     
-    public List<CommandeDAO> getCommandes(List<Integer> idCommandes) {
-	//déclaration de l'objet permettant de déclencher un appel REST
-	jakarta.ws.rs.client.Client client = ClientBuilder.newClient();
-	//on paramètre le lien d'appel, notre module Commande
-	WebTarget target = client.target("http://localhost:8081/api/commandes");
-	// Ajout des query params représentant les identifiants de commandes
-	for (Integer id : idCommandes) {
-		target = target.queryParam("idCommandes", id);
-	}
-	Response response = target.request(MediaType.APPLICATION_JSON).get();
-	//ici, cela nous permet de convertir directement la réponse du webservice en objet ClientDAO
-	List<CommandeDAO> commandes = response.readEntity(new GenericType<List<CommandeDAO>>() {});
-	response.close();
-	client.close();
-	return commandes;
-	}
+    public List<CommandeDAO> getCommandes(Integer clientId) { 
+       jakarta.ws.rs.client.Client client = ClientBuilder.newClient();
+        
+        WebTarget target = client.target("http://localhost:8081/api/commandes/client/" + clientId);
+         
+        Response response = null;
+        try {
+        response = target.request(MediaType.APPLICATION_JSON).get();
+            if (response.getStatus() == 200) {
+                // 3. Lit le CommandeDAO (qui a 'statut', 'clientId', etc.)
+                return response.readEntity(new GenericType<List<CommandeDAO>>() {});
+            }
+            return List.of();
+        } catch (Exception e) {
+            System.err.println("ERREUR: Impossible de contacter le service commande. Message: " + e.getMessage());
+            return List.of();
+        } finally {
+            if (response != null) response.close();
+            client.close();
+        }
+    }
 }   

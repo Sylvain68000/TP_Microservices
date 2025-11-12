@@ -22,6 +22,8 @@ public class Commande {
     private String nom;
     @Enumerated(EnumType.STRING)
     private StatusCommande statut;
+    private Integer clientId;
+
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "commande_id_produits", joinColumns = @JoinColumn(name = "commande_id"))
@@ -32,12 +34,12 @@ public class Commande {
     public Commande() {
     }
 
-    public Commande(String nom, StatusCommande statut, List<Integer> idProduits) {
+    public Commande(String nom, StatusCommande statut, List<Integer> idProduits, Integer clientId) {
         this.nom = nom;
         this.statut = statut;
         this.idProduits = idProduits;
+        this.clientId = clientId;
     }
-
 
     // Getters and Setters
 
@@ -69,5 +71,11 @@ public class Commande {
     }
     public void setIdProduits(List<Integer> idProduits) {
         this.idProduits = idProduits;
+    }
+        public Integer getClientId() {
+        return clientId;
+    }
+    public void setClientId(Integer clientId) {
+        this.clientId = clientId;
     }
 }

@@ -17,6 +17,7 @@ public class CommandeMapper {
         CommandeDTO.setNom(commande.getNom());
         CommandeDTO.setStatut(commande.getStatut());
         CommandeDTO.setProduits( mapProduitDAOToProduitDTO(produitsBruts) );
+        CommandeDTO.setClientId( commande.getClientId() );
 
         return CommandeDTO;
     }
@@ -26,9 +27,10 @@ public Commande mapCreationDTOToCommande(CreationCommandeDTO commandeDTO) {
         Commande commande = new Commande();
         commande.setNom(commandeDTO.getNom());
         
-        commande.setIdProduits( commandeDTO.getProduits() ); 
+        commande.setIdProduits(commandeDTO.getProduits() ); 
         
         commande.setStatut(StatusCommande.EN_ATTENTE); 
+        commande.setClientId(commandeDTO.getClientId());
         
         return commande;
     }

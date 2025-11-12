@@ -8,6 +8,9 @@ public class CommandeDAO {
     private int id;
     private String nom;
     private List<ProduitDTO> produits;
+    private String statut;
+    private Integer clientId;
+
 
     public CommandeDAO() {
     }
@@ -45,5 +48,18 @@ public class CommandeDAO {
 
     public void setProduits(List<ProduitDTO> produits) {
         this.produits = produits;
+    }
+        public String getStatut() {
+        return statut;
+    }
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+
+    public Integer getClientId() {
+        return clientId;
+    }
+    public void setClientId(Integer clientId) {
+        this.clientId = clientId;
     }
 }

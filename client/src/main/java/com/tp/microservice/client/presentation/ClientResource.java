@@ -2,17 +2,24 @@ package com.tp.microservice.client.presentation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import com.tp.microservice.client.application.Client;
 import com.tp.microservice.client.application.ClientService;
 import com.tp.microservice.client.application.CommandeDAO;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 
 @Path("clients")
@@ -25,33 +32,53 @@ public class ClientResource {
 	@Autowired
 	private ClientService service;
 
+	@Autowired
+ 	private ClientMapper mapper;
+
 	@GET
 	@Produces("application/json")
 	public List<ClientDTO> getClients() {
-		//ne pas oublier de mapper les données :)
-		ClientMapper em = new ClientMapper();
-		//on récupère toutes les entreprises
 		List<Client> clientsBdd = service.listingClients();
-		//cette liste nous sert d'objet de retour
 		List<ClientDTO> clientRetournees = new ArrayList<>();
-		//dans cette partie, on transforme les données en EntrepriseDTO
-		for (Client c : clientsBdd) {
-			ClientDTO clientAAjouter = new ClientDTO();
-			clientAAjouter = em.mapClientToClientDTO(c);
-			//partie Commandes, on va interroger le module Commande
-			//et mettre à dispo les infos commandes dans chaque client
-			if (c.getIdCommandes() != null && !c.getIdCommandes().isEmpty()) {
-				//ici on fait l'appel au module Commande via la couche presentation
-				List<CommandeDAO> commandes = service.getCommandes(c.getIdCommandes());
-				//on map les commandes dans l'objet de retour associé et on l'ajoute à son client
-				clientAAjouter.setCommandes(em.mapCommandeDAOToCommandeDTO(commandes));
-			}
-			//on ajoute le client mappé dans le résultat de la requête
-			clientRetournees.add(clientAAjouter);
-		}
-		return clientRetournees;
-	}
 
+		for (Client c : clientsBdd) {
+ 		//Mappe le client (Nom, Prénom, etc.)
+		ClientDTO clientAAjouter = mapper.mapClientToClientDTO(c);
+
+            // 1. Récupérer les données BRUTES (DAO) du service
+			List<CommandeDAO> commandesDAO = service.getCommandes( c.getId() );
+            
+            // 2. TRADUIRE les DAO en DTO (via le mapper)
+            List<CommandeDTO> commandesDTO = mapper.mapCommandeDAOToCommandeDTO(commandesDAO);
+
+            // 3. Mettre les DTO (traduits) dans l'objet final
+			clientAAjouter.setCommandes(commandesDTO);  
+
+ 			clientRetournees.add(clientAAjouter);
+ 		}
+ 		return clientRetournees;
+ 	}
+
+	@GET
+    @Path("/{id}")
+    public Response getClientById(@PathParam("id") int id) {
+        try {
+            Client client = service.getClient(id);
+            
+            ClientDTO clientDTO = mapper.mapClientToClientDTO(client);
+            // (Même logique de correction ici)
+            List<CommandeDAO> commandesDAO = service.getCommandes( client.getId() );
+            List<CommandeDTO> commandesDTO = mapper.mapCommandeDAOToCommandeDTO(commandesDAO);
+            clientDTO.setCommandes(commandesDTO);
+            
+            return Response.ok(clientDTO).build();
+            
+        } catch (NoSuchElementException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity(e.getMessage())
+                           .build();
+        }
+    }
 	// verbe de création
 	@POST
 	// permet de dire que le webservice attend un json avec la requête
@@ -60,5 +87,46 @@ public class ClientResource {
 		Client clientToSave = new ClientMapper().mapClientDTOToClient(clientDTO);
 		service.creationClient(clientToSave);
 	}
+
+	    /**
+     * Met à jour un client (PATCH).
+     */
+    @PATCH
+    @Path("/{id}")
+    public Response updateClient(@PathParam("id") int id, UpdateClientDTO clientDTO) {
+        try {
+            // 1. Récupérer l'entité
+            Client clientExistant = service.getClient(id);
+            
+            // 2. Appliquer le patch (logique dans le mapper)
+            mapper.appliquerPatchClient(clientExistant, clientDTO);
+            
+            // 3. Sauvegarder
+            Client clientMisAJour = service.updateClient(clientExistant);
+            
+            return Response.ok(clientMisAJour).build();
+            
+        } catch (NoSuchElementException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                           .entity(e.getMessage())
+                           .build();
+        }
+    }
+
+    /**
+     * Supprime un client.
+     */
+    @DELETE
+    @Path("/{id}")
+    public Response deleteClient(@PathParam("id") int id) {
+        try {
+            service.deleteClient(id); // (Le service gère le 404)
+            return Response.noContent().build(); 
+        } catch (NoSuchElementException e) {
+             return Response.status(Response.Status.NOT_FOUND)
+                           .entity(e.getMessage())
+                           .build();
+        }
+    }
 
 }

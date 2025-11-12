@@ -16,17 +16,15 @@ public class Client {
     private String prenom;
     private String mail;
     private String telephone;
-    private List<Integer> idCommandes;
 
     public Client() {}
 
-    public Client(int id, String nom, String prenom, String mail, String telephone, List<Integer> idCommandes) {
+    public Client(int id, String nom, String prenom, String mail, String telephone) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
         this.mail = mail;
         this.telephone = telephone;
-        this.idCommandes = idCommandes;
     }
 
     public int getId() {
@@ -68,12 +66,4 @@ public class Client {
     public void setTelephone(String telephone) {
         this.telephone = telephone;
     }
-
-    public List<Integer> getIdCommandes() {
-        return idCommandes;
-    }
-    public void setIdCommandes(List<Integer> idCommandes) {
-        this.idCommandes = idCommandes;
-    }
-
 }

@@ -40,6 +40,9 @@ public class  CommandeService {
         return commandeRepository.save(commande);
         
     }
+        public List<Commande> getCommandesPourClient(Integer clientId) {
+        return commandeRepository.findByClientId(clientId);
+    }
 
 public List<ProduitDAO> getProduits(List<Integer> idProduits) {
         if (idProduits == null || idProduits.isEmpty()) {

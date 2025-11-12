@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+
 import com.tp.microservice.client.application.Client;
 import com.tp.microservice.client.application.CommandeDAO;
 
+
+@Component
 public class ClientMapper {
 
 
@@ -30,8 +34,7 @@ public class ClientMapper {
         client.setPrenom(clientDTO.getPrenom());
         client.setMail(clientDTO.getMail());
         client.setTelephone(clientDTO.getTelephone());
-        client.setIdCommandes(clientDTO.getIdCommandes());
-        
+                
         return client;
     
     }
@@ -41,8 +44,23 @@ public List<CommandeDTO> mapCommandeDAOToCommandeDTO(List<CommandeDAO> commandes
             return new ArrayList<>();
         }
         return commandes.stream()
-                .map(c -> new CommandeDTO(c.getId(), c.getNom(), c.getProduits()))
+                .map(c -> new CommandeDTO(c.getId(), c.getNom(), c.getProduits(), c.getStatut(), c.getClientId()))
                 .collect(Collectors.toList());
+    }
+
+        public void appliquerPatchClient(Client clientExistant, UpdateClientDTO ClientDTO) {
+        if (ClientDTO.getNom() != null) {
+            clientExistant.setNom(ClientDTO.getNom());
+        }
+        if (ClientDTO.getPrenom() != null) {
+            clientExistant.setPrenom(ClientDTO.getPrenom());
+        }
+        if (ClientDTO.getMail() != null) {
+            clientExistant.setMail(ClientDTO.getMail());
+        }
+        if (ClientDTO.getTelephone() != null) {
+            clientExistant.setTelephone(ClientDTO.getTelephone());
+        }
     }
 
 

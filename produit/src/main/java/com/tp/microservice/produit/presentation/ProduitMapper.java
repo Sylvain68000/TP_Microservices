@@ -1,7 +1,13 @@
 package com.tp.microservice.produit.presentation;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.tp.microservice.produit.application.Produit;
 
+@Component
 public class ProduitMapper {
 
     public Produit mapProduitDTOtoProduit(ProduitDTO produitDTO) {
@@ -41,4 +47,10 @@ public class ProduitMapper {
             produit.setPrix(Produitdto.getPrix());
         }
     }
+
+    public List<ProduitDTO> produitsToProduitDTOs(List<Produit> produitsEntites) {
+            return produitsEntites.stream()
+            .map(this::mapProduitToProduitDTO) // "Pour chaque produit dans la liste, appelle mapProduitToProduitDTO"
+            .collect(Collectors.toList());
+}
 }

@@ -6,16 +6,20 @@ public class CommandeDTO {
     private int id;
     private String nom;
     private List<ProduitDTO> produits;
+    private String statut;
+    private Integer clientId;
 
     public CommandeDTO(int id, String nom) {
         this.id = id;
         this.nom = nom;
     }
 
-    public CommandeDTO(int id, String nom, List<ProduitDTO> produits) {
+    public CommandeDTO(int id, String nom, List<ProduitDTO> produits, String statut, Integer clientId) {
         this.id = id;
         this.nom = nom;
         this.produits = produits;
+        this.statut = statut;
+        this.clientId = clientId;
     }
 
     public CommandeDTO() {
@@ -43,5 +47,17 @@ public class CommandeDTO {
 
     public void setProduits(List<ProduitDTO> produits) {
         this.produits = produits;
+    }
+    public String getStatut() {
+        return statut;
+    }
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+    public Integer getClientId() {
+        return clientId;
+    }
+    public void setClientId(Integer clientId) {
+        this.clientId = clientId;
     }
 }

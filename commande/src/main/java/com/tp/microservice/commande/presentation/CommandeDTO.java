@@ -10,22 +10,24 @@ public class CommandeDTO {
     private String nom;
     private StatusCommande statut;
     private List<ProduitDTO> produits;
+    private Integer clientId;
 
     public CommandeDTO() {
     }
 
-    public CommandeDTO(Integer id, String nom, StatusCommande statut, List<ProduitDTO> produits) {
+    public CommandeDTO(Integer id, String nom, StatusCommande statut, List<ProduitDTO> produits, Integer clientId ) {
         this.id = id;
         this.nom = nom;
         this.statut = statut;
         this.produits = produits;
+        this.clientId = clientId;
     }
 
-    public CommandeDTO(Integer id, String nom, StatusCommande statut) {
+    public CommandeDTO(Integer id, String nom, StatusCommande statut, Integer clientId) {
         this.id = id;
         this.nom = nom;
         this.statut = statut;
-
+        this.clientId = clientId;
     }
     public Integer getId() {
         return id;
@@ -58,5 +60,10 @@ public class CommandeDTO {
     public void setProduits(List<ProduitDTO> produits) {
         this.produits = produits;
     }
-
+    public Integer getClientId() {
+        return clientId;
+    }
+    public void setClientId(Integer clientId) {
+        this.clientId = clientId;
+    }
 }
