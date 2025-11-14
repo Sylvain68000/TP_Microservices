@@ -22,3 +22,11 @@ The connection was not closed by the application and is garbage collected [90018
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
 	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
 	... 16 more
+2025-11-14 15:01:42.471312+01:00 jdbc[277]: exception
+org.h2.jdbc.JdbcSQLDataException: Erreur lors de la conversion de données "'' (CLIENT: ""ID_COMMANDES"" INTEGER ARRAY)"
+Data conversion error converting "'' (CLIENT: ""ID_COMMANDES"" INTEGER ARRAY)"; SQL statement:
+UPDATE "PUBLIC"."CLIENT" SET "ID"=? ,"ID_COMMANDES"=? ,"MAIL"=? ,"NOM"=? ,"PRENOM"=? ,"TELEPHONE"=?  WHERE "ID"=? [22018-232]
+2025-11-14 15:01:42.535820+01:00 jdbc[277]: exception
+org.h2.jdbc.JdbcSQLDataException: Erreur lors de la conversion de données "'' (CLIENT: ""ID_COMMANDES"" INTEGER ARRAY)"
+Data conversion error converting "'' (CLIENT: ""ID_COMMANDES"" INTEGER ARRAY)"; SQL statement:
+UPDATE "PUBLIC"."CLIENT" SET "ID"=? ,"ID_COMMANDES"=? ,"MAIL"=? ,"NOM"=? ,"PRENOM"=? ,"TELEPHONE"=?  WHERE "ID"=? [22018-232]

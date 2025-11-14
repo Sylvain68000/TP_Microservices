@@ -47,7 +47,7 @@ public class ClientService {
         try {
         response = target.request(MediaType.APPLICATION_JSON).get();
             if (response.getStatus() == 200) {
-                // 3. Lit le CommandeDAO (qui a 'statut', 'clientId', etc.)
+               
                 return response.readEntity(new GenericType<List<CommandeDAO>>() {});
             }
             return List.of();
