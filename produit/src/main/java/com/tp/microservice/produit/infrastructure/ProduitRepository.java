@@ -13,7 +13,6 @@ import com.tp.microservice.produit.application.Produit;
 @Component
 public interface ProduitRepository extends JpaRepository<Produit, Integer> {
 
-     // Spring va automatiquement générer le SQL : "SELECT ... WHERE id IN (...)"
     List<Produit> findByIdIn(List<Integer> ids);
 
 }
