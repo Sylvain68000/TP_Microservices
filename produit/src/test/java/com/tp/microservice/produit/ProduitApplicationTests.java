@@ -33,8 +33,9 @@ class ProduitApplicationTests {
     @InjectMocks
     private ProduitService produitService;
 	@Test
-    void testGetProduit_OK() {
-        // 1. Préparation (Arrange)
+	//Vérifier que la méthode getProduit(id) fonctionne avec un ID correctement quand la donnée est trouvée.
+    void testGetProduit_OK() { 
+        // On creer le produit de test
         Produit produitDeTest = new Produit();
         produitDeTest.setId(1);
         produitDeTest.setNom("Test Marteau");
@@ -42,22 +43,21 @@ class ProduitApplicationTests {
         // Dit au "faux" repository quoi faire
         when(produitRepository.findById(1)).thenReturn(Optional.of(produitDeTest));
 
-        // 2. Action (Act)
+        // On exécute la vraie méthode du service
         Produit resultat = produitService.getProduit(1);
 
-        // 3. Vérification (Assert)
+        // Vérifie qu'il a bien renvoyé quelque chose
         assertNotNull(resultat);
         assertEquals("Test Marteau", resultat.getNom());
-        verify(produitRepository).findById(1); // Vérifie que la méthode a été appelée
+        verify(produitRepository).findById(1); // Vérifie que la méthode a été appelée le bon ID
     }
 
 	@Test
+	  //Vérifier que la méthode getProduit(id) gère correctement le cas où l'ID n'existe pas, en renvoyant une erreur 404
 	  void testGetProduit_NotFound() {
-        // 1. Préparation (Arrange)
-        // Dit au "faux" repository de ne rien renvoyer
+        // On programme le Faux repository : "Si on me demande l'ID 99 (qui n'existe pas), je renvoie un Optional.empty()."
         when(produitRepository.findById(99)).thenReturn(Optional.empty());
 
-        // 2. Action & 3. Vérification (Assert)
         // On vérifie qu'une exception 'NoSuchElementException' est bien lancée
         assertThrows(NoSuchElementException.class, () -> {
             produitService.getProduit(99);
@@ -67,24 +67,24 @@ class ProduitApplicationTests {
     }
 
 	   @Test
+		//Vérifier que la méthode getProduit(id) fonctionne avec plusieurs ID correctement quand les données sont trouvées.
   		void testGetProduitsByIds() {
-		// --- 1. PRÉPARATION (Arrange) ---
+		//on veut les IDs 1 et 2 simulation de GET /api/produits?idProduits=1&idProduits=2
 		List<Integer> idsDemandes = List.of(1, 2);
-		List<Produit> produitsTrouves = List.of(new Produit(), new Produit());
+		List<Produit> produitsTrouves = List.of(new Produit(), new Produit()); // On crée les deux Entités qui seront renvoyées par le faux repository.
 
-		// On programme le "faux frigo"
+		// On programme le Faux repository : "Si on me demande une recherche par liste (findByIdIn), je renvoie les deux produits."
 		when(produitRepository.findByIdIn(idsDemandes))
 			 .thenReturn(produitsTrouves); 
 
-		// --- 2. ACTION (Act) ---
-        // 'resultat' est bien List<Produit>, comme dans votre service
+        // On exécute la vraie méthode du service (qui doit renvoyer une List de Produits)
 		List<Produit> resultat = produitService.getProduitsByIds(idsDemandes);
 
-		// --- 3. VÉRIFICATION (Assert) ---
+		// Vérifie qu'on a bien reçu les deux produits.
 		assertNotNull(resultat);
 		assertEquals(2, resultat.size()); 
 	
-		// On vérifie que le service a appelé le frigo
+		// On vérifie que le service a appeler FinById du repository avec les bons IDs d'un seul coup
 		verify(produitRepository).findByIdIn(idsDemandes);
 			}
 
