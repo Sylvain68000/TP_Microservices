@@ -26,7 +26,7 @@ import jakarta.ws.rs.core.Response;
 public class ProduitResource {
 
     @Autowired
-    private ProduitService service; // Le service (qui renvoie des Entités)
+    private ProduitService service; 
 
     @Autowired
     private ProduitMapper mapper; 
@@ -53,10 +53,10 @@ public class ProduitResource {
     @Path("/{id}")
     public Response getProduitById(@PathParam("id") int id) {
         try {
-            // 1. Appeler le service pour l'Entité
+            // Appeler le service pour l'Entité
             Produit produit = service.getProduit(id);
             
-            // 2. Mapper l'Entité en DTO
+            // Mapper l'Entité en DTO
             ProduitDTO produitDTO = mapper.mapProduitToProduitDTO(produit); 
             
             return Response.ok(produitDTO).build();
@@ -72,13 +72,13 @@ public class ProduitResource {
     @POST
     public Response createProduit(CreationProduitDTO produitDTO) {
         try {
-            // 1. Le Resource mappe : DTO -> Entité
+            // Le Resource mappe : DTO -> Entité
             Produit produit = mapper.mapCreationDTOToProduit(produitDTO);
             
-            // 2. Le Resource appelle le service (avec l'Entité)
+            // Le Resource appelle le service (avec l'Entité)
             Produit created = service.creationProduit(produit);
             
-            // 3. Le Resource re-mappe : Entité -> DTO pour la réponse
+            // Le Resource re-mappe : Entité -> DTO pour la réponse
             return Response.status(Response.Status.CREATED)
                            .entity(mapper.mapProduitToProduitDTO(created))
                            .build();
@@ -91,14 +91,13 @@ public class ProduitResource {
     @Path("/{id}")
     public Response updateProduit(@PathParam("id") Integer id, UpdateProduitDTO produitDTO) {
         try {
-            // 1. Le Resource appelle le service pour l'Entité
+            // Le Resource appelle le service pour l'Entité
             Produit produitExistant = service.getProduit(id);
             
-            // 2. Le Resource appelle le mapper pour appliquer le patch
-            // (Nous devons créer cette méthode dans le mapper)
-            mapper.appliquerPatchProduit(produitExistant, produitDTO);
-            
-            // 3. Le Resource sauvegarde l'Entité modifiée
+            // Le Resource appelle le mapper pour appliquer le patch
+
+            mapper.appliquerPatchProduit(produitExistant, produitDTO);            
+            // Le Resource sauvegarde l'Entité modifiée
             Produit savedProduit = service.updateProduit(produitExistant);
             
             return Response.ok(mapper.mapProduitToProduitDTO(savedProduit)).build();

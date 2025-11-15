@@ -33,6 +33,7 @@ public class CommandeResource {
     @Autowired
     private CommandeMapper mapper;
 
+	//GET /api/commandes?idCommandes=1&idCommandes=2
 	@GET
 	@Produces("application/json")
  	public Response getCommandes(@QueryParam("idCommandes") List<Integer> idCommandes) {
@@ -88,6 +89,7 @@ public class CommandeResource {
                    .build();
 
 }
+	//GET /api/commandes/{id}
 	@GET
     @Path("/{id}")
     public Response getCommandeById(@PathParam("id") int id) {

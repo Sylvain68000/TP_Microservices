@@ -50,7 +50,7 @@ public class ProduitMapper {
 
     public List<ProduitDTO> produitsToProduitDTOs(List<Produit> produitsEntites) {
             return produitsEntites.stream()
-            .map(this::mapProduitToProduitDTO) // "Pour chaque produit dans la liste, appelle mapProduitToProduitDTO"
+            .map(this::mapProduitToProduitDTO)
             .collect(Collectors.toList());
 }
 }

@@ -45,13 +45,13 @@ public class ClientResource {
  		//Mappe le client (Nom, Prénom, etc.)
 		ClientDTO clientAAjouter = mapper.mapClientToClientDTO(c);
 
-            // 1. Récupérer les données BRUTES (DAO) du service
+            // Récupérer les données BRUTES (DAO) du service
 			List<CommandeDAO> commandesDAO = service.getCommandes( c.getId() );
             
-            // 2. TRADUIRE les DAO en DTO (via le mapper)
+            // Traduire les DAO en DTO (via le mapper)
             List<CommandeDTO> commandesDTO = mapper.mapCommandeDAOToCommandeDTO(commandesDAO);
 
-            // 3. Mettre les DTO (traduits) dans l'objet final
+            // Mettre les DTO (traduits) dans l'objet final
 			clientAAjouter.setCommandes(commandesDTO);  
 
  			clientRetournees.add(clientAAjouter);
@@ -66,7 +66,7 @@ public class ClientResource {
             Client client = service.getClient(id);
             
             ClientDTO clientDTO = mapper.mapClientToClientDTO(client);
-            // (Même logique de correction ici)
+            
             List<CommandeDAO> commandesDAO = service.getCommandes( client.getId() );
             List<CommandeDTO> commandesDTO = mapper.mapCommandeDAOToCommandeDTO(commandesDAO);
             clientDTO.setCommandes(commandesDTO);
@@ -79,7 +79,7 @@ public class ClientResource {
                            .build();
         }
     }
-	// verbe de création
+	
 	@POST
 	// permet de dire que le webservice attend un json avec la requête
 	@Consumes("application/json")
@@ -88,20 +88,17 @@ public class ClientResource {
 		service.creationClient(clientToSave);
 	}
 
-	    /**
-     * Met à jour un client (PATCH).
-     */
     @PATCH
     @Path("/{id}")
     public Response updateClient(@PathParam("id") int id, UpdateClientDTO clientDTO) {
         try {
-            // 1. Récupérer l'entité
+            // Récupérer l'entité
             Client clientExistant = service.getClient(id);
             
-            // 2. Appliquer le patch (logique dans le mapper)
+            // Appliquer le patch 
             mapper.appliquerPatchClient(clientExistant, clientDTO);
             
-            // 3. Sauvegarder
+            // Sauvegarder
             Client clientMisAJour = service.updateClient(clientExistant);
             
             return Response.ok(clientMisAJour).build();
@@ -113,9 +110,7 @@ public class ClientResource {
         }
     }
 
-    /**
-     * Supprime un client.
-     */
+
     @DELETE
     @Path("/{id}")
     public Response deleteClient(@PathParam("id") int id) {

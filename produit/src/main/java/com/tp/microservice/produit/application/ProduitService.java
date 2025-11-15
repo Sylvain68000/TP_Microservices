@@ -30,7 +30,7 @@ public class ProduitService {
         return produitRepository.save(produit);
     }
     public void deleteProduit(int id){
-       Produit p = this.getProduit(id); // (Lèvera une erreur 404 si non trouvé)
+       Produit p = this.getProduit(id); 
         produitRepository.delete(p);
     }
     public Produit creationProduit(Produit produit)
