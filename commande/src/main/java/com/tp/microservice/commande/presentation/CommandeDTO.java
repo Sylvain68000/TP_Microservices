@@ -2,7 +2,6 @@ package com.tp.microservice.commande.presentation;
 
 import java.util.List;
 
-import com.tp.microservice.commande.application.ProduitDAO;
 import com.tp.microservice.commande.application.StatusCommande;
 
 public class CommandeDTO {

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Commandes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input, textarea, select, button { padding: 8px; margin: 5px; }
+        .btn { background-color: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; }
+        .btn:hover { background-color: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+        .back-btn { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des Commandes</h1>
+        <a href="/index.html" class="btn back-btn">← Retour au menu</a>
+        
+        <h2>1. Lister toutes les commandes</h2>
+        <button onclick="listerCommandes()" class="btn">Afficher toutes les commandes</button>
+        <div id="listeCommandes"></div>
+        
+        <h2>2. Rechercher une commande</h2>
+        <input type="number" id="commandeIdSearch" placeholder="ID de la commande">
+        <button onclick="rechercherCommande()" class="btn">Rechercher</button>
+        <div id="commandeTrouve"></div>
+        
+        <h2>2. Modifier la commande</h2>
+        <form id="commandeForm">
+            <p>ID: <input type="number" id="commandeId" readonly></p>
+            <p>Nom: <input type="text" id="nom" required></p>
+            <p>Statut: 
+                <select id="statut" required>
+                    <option value="">-- Choisir un statut --</option>
+                    <option value="EN_ATTENTE">EN_ATTENTE</option>
+                    <option value="VALIDEE">VALIDEE</option>
+                    <option value="EN_PREPARATION">EN_PREPARATION</option>
+                    <option value="EXPEDIEE">EXPEDIEE</option>
+                    <option value="ANNULE">ANNULE</option>
+                </select>
+            </p>
+            <p>Client ID: <input type="number" id="clientId" required></p>
+            <p>IDs Produits (séparés par des virgules): <input type="text" id="idProduits" placeholder="1,2,3" required></p>
+            <button type="button" onclick="mettreAJourCommande()" class="btn">Mettre à jour (PATCH)</button>
+        </form>
+        
+        <h2>3. Supprimer une commande</h2>
+        <input type="number" id="commandeIdDelete" placeholder="ID de la commande à supprimer">
+        <button onclick="supprimerCommande()" class="btn" style="background-color: #dc3545;">Supprimer</button>
+        
+        <h2>4. Résultat</h2>
+        <div id="resultat"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8081/api/commandes';
+
+        function rechercherCommande() {
+            const id = document.getElementById('commandeIdSearch').value;
+            if (!id) {
+                alert('Veuillez saisir un ID');
+                return;
+            }
+
+            fetch(`${API_BASE}/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Commande non trouvée');
+                    return response.json();
+                })
+                .then(commande => {
+                    document.getElementById('commandeTrouve').innerHTML = 
+                        `<p><strong>Commande trouvée:</strong> ${commande.nom}</p>
+                         <p><strong>Statut:</strong> ${commande.statut}</p>
+                         <p><strong>Client ID:</strong> ${commande.clientId}</p>
+                         <p><strong>Produits:</strong> ${commande.produits ? commande.produits.map(p => p.nom).join(', ') : 'Aucun'}</p>`;
+                    
+                    document.getElementById('commandeId').value = commande.id;
+                    document.getElementById('nom').value = commande.nom;
+                    document.getElementById('statut').value = commande.statut;
+                    document.getElementById('clientId').value = commande.clientId;
+                    
+                    if (commande.idProduits) {
+                        document.getElementById('idProduits').value = commande.idProduits.join(',');
+                    } else if (commande.produits) {
+                        document.getElementById('idProduits').value = commande.produits.map(p => p.id).join(',');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('commandeTrouve').innerHTML = 
+                        `<p class="error">Erreur: ${error.message}</p>`;
+                });
+        }
+
+        function mettreAJourCommande() {
+            const id = document.getElementById('commandeId').value;
+            if (!id) {
+                alert('Veuillez d\'abord rechercher une commande');
+                return;
+            }
+
+            const idProduitsStr = document.getElementById('idProduits').value;
+            const idProduits = idProduitsStr.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+
+            const commandeData = {
+                nom: document.getElementById('nom').value,
+                statut: document.getElementById('statut').value,
+                clientId: parseInt(document.getElementById('clientId').value),
+                idProduits: idProduits
+            };
+
+            fetch(`${API_BASE}/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(commandeData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+                return response.json();
+            })
+            .then(result => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="success">Commande mise à jour avec succès!</p>
+                     <p>ID: ${result.id}</p>
+                     <p>Nom: ${result.nom}</p>
+                     <p>Statut: ${result.statut}</p>
+                     <p>Client ID: ${result.clientId}</p>
+                     <p>IDs Produits: ${result.idProduits ? result.idProduits.join(', ') : 'Non disponible'}</p>`;
+            })
+            .catch(error => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="error">Erreur: ${error.message}</p>`;
+            });
+        }
+
+        function listerCommandes() {
+            fetch(API_BASE)
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur lors du chargement des commandes');
+                    return response.json();
+                })
+                .then(commandes => {
+                    let html = '<table><tr><th>ID</th><th>Nom</th><th>Statut</th><th>Client ID</th><th>Produits</th></tr>';
+                    commandes.forEach(commande => {
+                        const produits = commande.produits ? 
+                            commande.produits.map(p => `${p.nom} (${p.prix}€)`).join(', ') : 
+                            'Aucun produit';
+                        html += `<tr>
+                            <td>${commande.id}</td>
+                            <td>${commande.nom}</td>
+                            <td>${commande.statut}</td>
+                            <td>${commande.clientId}</td>
+                            <td>${produits}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    document.getElementById('listeCommandes').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('listeCommandes').innerHTML = 
+                        `<p class="error">Erreur: ${error.message}</p>`;
+                });
+        }
+
+        function supprimerCommande() {
+            const id = document.getElementById('commandeIdDelete').value;
+            if (!id) {
+                alert('Veuillez saisir un ID');
+                return;
+            }
+
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer la commande ${id} ?`)) {
+                return;
+            }
+
+            fetch(`${API_BASE}/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (!response.ok) throw new Error('Commande non trouvée ou erreur lors de la suppression');
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="success">Commande ${id} supprimée avec succès!</p>`;
+                document.getElementById('commandeIdDelete').value = '';
+                if (document.getElementById('listeCommandes').innerHTML) {
+                    listerCommandes();
+                }
+            })
+            .catch(error => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="error">Erreur: ${error.message}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>

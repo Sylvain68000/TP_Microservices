@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfaces de Gestion - Microservices</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .service-card { border: 1px solid #ccc; padding: 20px; margin: 10px 0; background-color: #f9f9f9; }
+        .btn { padding: 10px 20px; margin: 5px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
+        .btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏢 Gestion des Microservices</h1>
+        <p>Interface web pour gérer vos microservices Client, Produit et Commande</p>
+        
+        <div class="service-card">
+            <h2>👥 Gestion des Clients</h2>
+            <p>Créer, modifier, supprimer et lister les clients</p>
+            <a href="/client.html" class="btn">Accéder aux Clients</a>
+        </div>
+        
+        <div class="service-card">
+            <h2>📦 Gestion des Produits</h2>
+            <p>Créer, modifier, supprimer et lister les produits</p>
+            <a href="/produit.html" class="btn">Accéder aux Produits</a>
+        </div>
+        
+        <div class="service-card">
+            <h2>📋 Gestion des Commandes</h2>
+            <p>Créer, modifier, supprimer et lister les commandes</p>
+            <a href="/commande.html" class="btn">Accéder aux Commandes</a>
+        </div>
+        
+        <div class="service-card">
+            <h2>📊 État des Services</h2>
+            <p id="serviceStatus">Vérification en cours...</p>
+            <button onclick="checkServices()" class="btn">Vérifier les Services</button>
+        </div>
+    </div>
+
+    <script>
+        function checkServices() {
+            const services = [
+                {name: 'Client', url: 'http://localhost:8080/api/clients'},
+                {name: 'Produit', url: 'http://localhost:8082/api/produits'},
+                {name: 'Commande', url: 'http://localhost:8081/api/commandes'}
+            ];
+            
+            let status = '<h3>État des services:</h3>';
+            let promises = [];
+            
+            services.forEach(service => {
+                promises.push(
+                    fetch(service.url)
+                        .then(response => {
+                            status += `<p>✅ ${service.name}: <span style="color: green;">Actif</span></p>`;
+                        })
+                        .catch(error => {
+                            status += `<p>❌ ${service.name}: <span style="color: red;">Inactif</span></p>`;
+                        })
+                );
+            });
+            
+            Promise.all(promises).then(() => {
+                document.getElementById('serviceStatus').innerHTML = status;
+            });
+        }
+        
+        // Vérifier au chargement
+        checkServices();
+    </script>
+</body>
+</html>

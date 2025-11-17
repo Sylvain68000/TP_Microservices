@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Produits</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input, textarea, select, button { padding: 8px; margin: 5px; }
+        .btn { background-color: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; }
+        .btn:hover { background-color: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+        .back-btn { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des Produits</h1>
+        <a href="/index.html" class="btn back-btn">← Retour au menu</a>
+        
+        <h2>1. Lister tous les produits</h2>
+        <button onclick="listerProduits()" class="btn">Afficher tous les produits</button>
+        <div id="listeProduits"></div>
+        
+        <h2>2. Rechercher un produit</h2>
+        <input type="number" id="produitIdSearch" placeholder="ID du produit">
+        <button onclick="rechercherProduit()" class="btn">Rechercher</button>
+        <div id="produitTrouve"></div>
+        
+        <h2>2. Modifier le produit</h2>
+        <form id="produitForm">
+            <p>ID: <input type="number" id="produitId" readonly></p>
+            <p>Nom: <input type="text" id="nom" required></p>
+            <p>Description: <textarea id="description" rows="3" cols="50" required></textarea></p>
+            <p>Prix: <input type="number" id="prix" step="0.01" min="0" required></p>
+            <button type="button" onclick="mettreAJourProduit()" class="btn">Mettre à jour (PATCH)</button>
+        </form>
+        
+        <h2>3. Supprimer un produit</h2>
+        <input type="number" id="produitIdDelete" placeholder="ID du produit à supprimer">
+        <button onclick="supprimerProduit()" class="btn" style="background-color: #dc3545;">Supprimer</button>
+        
+        <h2>4. Résultat</h2>
+        <div id="resultat"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8082/api/produits';
+
+        function rechercherProduit() {
+            const id = document.getElementById('produitIdSearch').value;
+            if (!id) {
+                alert('Veuillez saisir un ID');
+                return;
+            }
+
+            fetch(`${API_BASE}/${id}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Produit non trouvé');
+                    return response.json();
+                })
+                .then(produit => {
+                    document.getElementById('produitTrouve').innerHTML = 
+                        `<p><strong>Produit trouvé:</strong> ${produit.nom} - ${produit.prix}€</p>
+                         <p><strong>Description:</strong> ${produit.description}</p>`;
+                    
+                    document.getElementById('produitId').value = produit.id;
+                    document.getElementById('nom').value = produit.nom;
+                    document.getElementById('description').value = produit.description;
+                    document.getElementById('prix').value = produit.prix;
+                })
+                .catch(error => {
+                    document.getElementById('produitTrouve').innerHTML = 
+                        `<p class="error">Erreur: ${error.message}</p>`;
+                });
+        }
+
+        function mettreAJourProduit() {
+            const id = document.getElementById('produitId').value;
+            if (!id) {
+                alert('Veuillez d\'abord rechercher un produit');
+                return;
+            }
+
+            const produitData = {
+                nom: document.getElementById('nom').value,
+                description: document.getElementById('description').value,
+                prix: parseFloat(document.getElementById('prix').value)
+            };
+
+            fetch(`${API_BASE}/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(produitData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+                return response.json();
+            })
+            .then(result => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="success">Produit mis à jour avec succès!</p>
+                     <p>Nom: ${result.nom}</p>
+                     <p>Description: ${result.description}</p>
+                     <p>Prix: ${result.prix}€</p>`;
+            })
+            .catch(error => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="error">Erreur: ${error.message}</p>`;
+            });
+        }
+
+        function listerProduits() {
+            fetch(API_BASE)
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur lors du chargement des produits');
+                    return response.json();
+                })
+                .then(produits => {
+                    let html = '<table><tr><th>ID</th><th>Nom</th><th>Description</th><th>Prix</th></tr>';
+                    produits.forEach(produit => {
+                        html += `<tr>
+                            <td>${produit.id}</td>
+                            <td>${produit.nom}</td>
+                            <td>${produit.description}</td>
+                            <td>${produit.prix}€</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    document.getElementById('listeProduits').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('listeProduits').innerHTML = 
+                        `<p class="error">Erreur: ${error.message}</p>`;
+                });
+        }
+
+        function supprimerProduit() {
+            const id = document.getElementById('produitIdDelete').value;
+            if (!id) {
+                alert('Veuillez saisir un ID');
+                return;
+            }
+
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer le produit ${id} ?`)) {
+                return;
+            }
+
+            fetch(`${API_BASE}/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (!response.ok) throw new Error('Produit non trouvé ou erreur lors de la suppression');
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="success">Produit ${id} supprimé avec succès!</p>`;
+                document.getElementById('produitIdDelete').value = '';
+                if (document.getElementById('listeProduits').innerHTML) {
+                    listerProduits();
+                }
+            })
+            .catch(error => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="error">Erreur: ${error.message}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>

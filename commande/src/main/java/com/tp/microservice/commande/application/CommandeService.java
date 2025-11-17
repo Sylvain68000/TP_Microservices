@@ -3,8 +3,8 @@ package com.tp.microservice.commande.application;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.tp.microservice.commande.infrastructure.CommandeRepository;
 
@@ -58,7 +58,7 @@ public List<ProduitDAO> getProduits(List<Integer> idProduits) {
 
         Response response = null;
         try {
-            // --- C'est la zone protégée ---
+            
             response = target.request(MediaType.APPLICATION_JSON).get();
             
             if (response.getStatus() == 200) {
@@ -67,12 +67,10 @@ public List<ProduitDAO> getProduits(List<Integer> idProduits) {
             return List.of(); 
             
         } catch (Exception e) {
-            // --- C'est ce qui attrape le "Connection refused" ---
-            System.err.println("ERREUR: Impossible de contacter le service produit. Message: " + e.getMessage());
-            return List.of(); // Renvoyer une liste vide au lieu de planter
+        
+            return List.of(); 
             
         } finally {
-            // Toujours fermer les ressources
             if (response != null) {
                 response.close();
             }

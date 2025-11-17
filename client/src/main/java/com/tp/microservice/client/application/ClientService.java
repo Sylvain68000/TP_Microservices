@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tp.microservice.client.infrastructure.ClientRepository;
+
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
@@ -52,7 +53,6 @@ public class ClientService {
             }
             return List.of();
         } catch (Exception e) {
-            System.err.println("ERREUR: Impossible de contacter le service commande. Message: " + e.getMessage());
             return List.of();
         } finally {
             if (response != null) response.close();

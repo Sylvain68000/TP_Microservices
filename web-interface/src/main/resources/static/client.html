@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Clients</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input, textarea, select, button { padding: 8px; margin: 5px; }
+        .btn { background-color: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; }
+        .btn:hover { background-color: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+        .back-btn { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des Clients</h1>
+        <a href="/index.html" class="btn back-btn">← Retour au menu</a>
+        
+        <h2>1. Lister tous les clients</h2>
+        <button onclick="listerClients()" class="btn">Afficher tous les clients</button>
+        <div id="listeClients"></div>
+        
+        <h2>2. Rechercher un client</h2>
+        <input type="number" id="clientIdSearch" placeholder="ID du client">
+        <button onclick="rechercherClient()" class="btn">Rechercher</button>
+        <div id="clientTrouve"></div>
+        
+        <h2>2. Modifier le client</h2>
+        <form id="clientForm">
+            <p>ID: <input type="number" id="clientId" readonly></p>
+            <p>Nom: <input type="text" id="nom" required></p>
+            <p>Prénom: <input type="text" id="prenom" required></p>
+            <p>Email: <input type="email" id="mail" required></p>
+            <p>Téléphone: <input type="tel" id="telephone" required></p>
+            <button type="button" onclick="mettreAJourClient()" class="btn">Mettre à jour (PATCH)</button>
+        </form>
+        
+        <h2>3. Supprimer un client</h2>
+        <input type="number" id="clientIdDelete" placeholder="ID du client à supprimer">
+        <button onclick="supprimerClient()" class="btn" style="background-color: #dc3545;">Supprimer</button>
+        
+        <h2>4. Résultat</h2>
+        <div id="resultat"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api/clients';
+
+        function rechercherClient() {
+            const id = document.getElementById('clientIdSearch').value;
+            if (!id) {
+                alert('Veuillez saisir un ID');
+                return;
+            }
+
+            fetch(`${API_BASE}/${id}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Client non trouvé');
+                    }
+                    return response.json();
+                })
+                .then(client => {
+                    document.getElementById('clientTrouve').innerHTML = 
+                        `<p><strong>Client trouvé:</strong> ${client.prenom} ${client.nom} (${client.mail})</p>`;
+                    
+                    document.getElementById('clientId').value = client.id;
+                    document.getElementById('nom').value = client.nom;
+                    document.getElementById('prenom').value = client.prenom;
+                    document.getElementById('mail').value = client.mail;
+                    document.getElementById('telephone').value = client.telephone;
+                })
+                .catch(error => {
+                    document.getElementById('clientTrouve').innerHTML = 
+                        `<p class="error">Erreur: ${error.message}</p>`;
+                });
+        }
+
+        function mettreAJourClient() {
+            const id = document.getElementById('clientId').value;
+            if (!id) {
+                alert('Veuillez d\'abord rechercher un client');
+                return;
+            }
+
+            const clientData = {
+                nom: document.getElementById('nom').value,
+                prenom: document.getElementById('prenom').value,
+                mail: document.getElementById('mail').value,
+                telephone: document.getElementById('telephone').value
+            };
+
+            fetch(`${API_BASE}/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clientData)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour');
+                return response.json();
+            })
+            .then(result => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="success">Client mis à jour avec succès!</p>
+                     <p>Nom: ${result.nom}</p>
+                     <p>Prénom: ${result.prenom}</p>
+                     <p>Email: ${result.mail}</p>
+                     <p>Téléphone: ${result.telephone}</p>`;
+            })
+            .catch(error => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="error">Erreur: ${error.message}</p>`;
+            });
+        }
+
+        function listerClients() {
+            fetch(API_BASE)
+                .then(response => {
+                    if (!response.ok) throw new Error('Erreur lors du chargement des clients');
+                    return response.json();
+                })
+                .then(clients => {
+                    let html = '<table><tr><th>ID</th><th>Nom</th><th>Prénom</th><th>Email</th><th>Téléphone</th></tr>';
+                    clients.forEach(client => {
+                        html += `<tr>
+                            <td>${client.id}</td>
+                            <td>${client.nom}</td>
+                            <td>${client.prenom}</td>
+                            <td>${client.mail}</td>
+                            <td>${client.telephone}</td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                    document.getElementById('listeClients').innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('listeClients').innerHTML = 
+                        `<p class="error">Erreur: ${error.message}</p>`;
+                });
+        }
+
+        function supprimerClient() {
+            const id = document.getElementById('clientIdDelete').value;
+            if (!id) {
+                alert('Veuillez saisir un ID');
+                return;
+            }
+
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer le client ${id} ?`)) {
+                return;
+            }
+
+            fetch(`${API_BASE}/${id}`, { method: 'DELETE' })
+            .then(response => {
+                if (!response.ok) throw new Error('Client non trouvé ou erreur lors de la suppression');
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="success">Client ${id} supprimé avec succès!</p>`;
+                document.getElementById('clientIdDelete').value = '';
+                if (document.getElementById('listeClients').innerHTML) {
+                    listerClients();
+                }
+            })
+            .catch(error => {
+                document.getElementById('resultat').innerHTML = 
+                    `<p class="error">Erreur: ${error.message}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>
