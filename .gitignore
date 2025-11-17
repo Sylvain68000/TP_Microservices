@@ -1,1 +1,6 @@
 
+client/client.mv.db
+client/client.trace.db
+commande/commande.mv.db
+produit/produit.mv.db
+produit/produit.trace.db

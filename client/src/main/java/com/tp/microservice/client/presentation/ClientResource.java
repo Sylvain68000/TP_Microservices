@@ -21,14 +21,12 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-
 @Path("clients")
 @Produces(MediaType.APPLICATION_JSON) 
 @Consumes(MediaType.APPLICATION_JSON)
 public class ClientResource {
 
-	// permet à Spring de récupérer l'instance ClientService afin de manipuler
-	// son contenu
+	// permet à Spring de récupérer l'instance ClientService afin de manipuler son contenu
 	@Autowired
 	private ClientService service;
 
